@@ -1,321 +1,528 @@
 .section {
-  margin: 32px 32px 40px;
+  margin-bottom: 48px;
+}
+
+.sectionHeader {
+  margin-bottom: 24px;
 }
 
 .sectionTitle {
-  font-size: 13px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  color: var(--text);
-  margin: 0 0 16px;
-  text-align: center;
+  font-family: var(--font-sans);
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text-h);
+  letter-spacing: -0.5px;
+  margin-bottom: 6px;
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+.sectionSubtitle {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-muted);
+  letter-spacing: 0.3px;
 }
 
-/* ---- Matched Credential Card ---- */
+/* ═══════════════════════════════════════
+   Credential Card
+   ═══════════════════════════════════════ */
 .credentialCard {
-  margin-bottom: 16px;
-  padding: 20px 24px;
-  border-radius: 12px;
-  border: 1px solid var(--status-verified-border);
-  background: var(--status-verified-bg);
-  animation: fadeIn 0.35s ease both;
+  background: var(--bg-card);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 0 24px rgba(16, 185, 129, 0.04);
+  transition:
+    border-color var(--duration-normal) ease,
+    box-shadow var(--duration-normal) ease,
+    transform var(--duration-normal) var(--ease-out-expo);
+  will-change: transform;
+}
+
+.credentialCard:hover {
+  border-color: rgba(16, 185, 129, 0.35);
+  box-shadow: 0 4px 24px rgba(16, 185, 129, 0.08);
 }
 
 .credentialHeader {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 14px;
-  color: var(--status-verified);
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.credentialIconWrap {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #34d399;
 }
 
 .credentialTitle {
-  font-size: 14px;
+  font-family: var(--font-sans);
   font-weight: 700;
-  letter-spacing: 0.3px;
+  font-size: 14px;
+  color: #34d399;
+  letter-spacing: 0.1px;
 }
 
-.credentialDetails {
+.credentialGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.credentialItem {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-}
-
-.credentialRow {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
+  gap: 6px;
 }
 
 .credentialLabel {
-  font-size: 12px;
+  font-family: var(--font-mono);
+  font-size: 10px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--text);
-  flex-shrink: 0;
+  letter-spacing: 1px;
+  color: var(--text-muted);
 }
 
 .credentialValue {
-  font-family: var(--mono);
-  font-size: 12px;
-  color: var(--text-h);
-  text-align: right;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--purple-light);
   word-break: break-all;
+  background: transparent;
+  border: none;
+  padding: 0;
 }
 
-/* ---- Document Consistency Card ---- */
+.credentialValueText {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+/* ═══════════════════════════════════════
+   Consistency Card
+   ═══════════════════════════════════════ */
 .consistencyCard {
-  margin-bottom: 16px;
-  padding: 20px 24px;
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  background: var(--card-bg);
-  animation: fadeIn 0.35s ease both;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-bottom: 20px;
+  transition:
+    border-color var(--duration-normal) ease,
+    box-shadow var(--duration-normal) ease,
+    transform var(--duration-normal) var(--ease-out-expo);
+  will-change: transform;
+}
+
+.consistencyCard:hover {
+  border-color: var(--border-hover);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
 }
 
 .consistencyHeader {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 14px;
-  color: var(--text-h);
+  gap: 10px;
+  margin-bottom: 16px;
+  color: var(--purple-light);
 }
 
 .consistencyTitle {
-  font-size: 14px;
+  font-family: var(--font-sans);
   font-weight: 700;
-  letter-spacing: 0.3px;
+  font-size: 14px;
 }
 
-.consistencyDetails {
+.consistencyRows {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .consistencyRow {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: 12px;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  transition: border-color var(--duration-fast) ease;
+}
+
+.consistencyRow:hover {
+  border-color: var(--border-color);
 }
 
 .consistencyLabel {
-  font-size: 12px;
+  font-family: var(--font-sans);
+  font-size: 13px;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--text);
-  flex-shrink: 0;
+  color: var(--text-h);
 }
 
 .statusChip {
-  font-size: 11px;
+  font-family: var(--font-mono);
+  font-size: 10px;
   font-weight: 700;
   padding: 3px 10px;
-  border-radius: 100px;
-  text-transform: uppercase;
+  border-radius: var(--radius-sm);
   letter-spacing: 0.5px;
 }
 
-.match {
+.statusChip.match {
   background: var(--status-verified-bg);
-  color: var(--status-verified);
+  color: #34d399;
   border: 1px solid var(--status-verified-border);
 }
-
-.mismatch {
+.statusChip.mismatch {
   background: var(--status-failed-bg);
-  color: var(--status-failed);
+  color: #f87171;
   border: 1px solid var(--status-failed-border);
 }
-
-.not_found {
+.statusChip.not_found {
   background: var(--status-suspicious-bg);
-  color: var(--status-suspicious);
+  color: #fbbf24;
   border: 1px solid var(--status-suspicious-border);
 }
 
-.card {
-  padding: 18px 20px;
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  background: var(--card-bg);
-  text-align: left;
-  transition: border-color 0.25s ease;
-  animation: fadeIn 0.35s ease both;
+/* ═══════════════════════════════════════
+   Evidence Cards Grid
+   ═══════════════════════════════════════ */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
 }
 
-.card:nth-child(1) { animation-delay: 0ms; }
-.card:nth-child(2) { animation-delay: 60ms; }
-.card:nth-child(3) { animation-delay: 120ms; }
-.card:nth-child(4) { animation-delay: 180ms; }
-.card:nth-child(5) { animation-delay: 240ms; }
-.card:nth-child(6) { animation-delay: 300ms; }
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 0;
+  transition:
+    border-color var(--duration-normal) ease,
+    box-shadow var(--duration-normal) var(--ease-out-expo),
+    transform var(--duration-normal) var(--ease-out-expo);
+  will-change: transform;
+  overflow: hidden;
+}
+
+.card:hover {
+  border-color: var(--border-hover);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2), 0 0 16px rgba(160,120,255,0.04);
+}
+
+.cardInner {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: cardReveal 350ms var(--ease-out-expo) both;
+}
+
+@keyframes cardReveal {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.cardTampered {
+  border-color: rgba(239, 68, 68, 0.35) !important;
+  background: linear-gradient(180deg, rgba(239,68,68,0.04) 0%, var(--bg-card) 100%);
+  box-shadow: 0 0 20px var(--status-failed-glow) !important;
+}
 
 .cardHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 10px;
+  gap: 12px;
 }
 
 .cardLabel {
+  font-family: var(--font-sans);
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-h);
 }
 
 .cardStatus {
-  font-size: 11px;
-  font-weight: 600;
-  padding: 3px 8px;
-  border-radius: 100px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: var(--radius-sm);
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  white-space: nowrap;
 }
 
-/* Status chip colors */
-.pending {
-  background: var(--status-ready-bg);
-  color: var(--status-ready);
-}
-
-.running {
-  background: var(--status-processing-bg);
-  color: var(--status-processing);
-}
-
-.complete {
-  background: var(--status-verified-bg);
-  color: var(--status-verified);
-}
-
-.error {
-  background: var(--status-failed-bg);
-  color: var(--status-failed);
-}
-
-.unavailable {
-  background: var(--code-bg);
-  color: var(--text);
-}
-
-.not_implemented {
-  background: var(--status-incomplete-bg);
-  color: var(--status-incomplete);
+.cardStatus.pending   { background: var(--status-pending-bg);    color: var(--text-muted);    border: 1px solid var(--status-pending-border); }
+.cardStatus.running   { background: var(--status-processing-bg); color: #60a5fa;              border: 1px solid var(--status-processing-border); }
+.cardStatus.complete  { background: var(--status-verified-bg);   color: #34d399;              border: 1px solid var(--status-verified-border); }
+.cardStatus.error     { background: var(--status-failed-bg);     color: #f87171;              border: 1px solid var(--status-failed-border); }
+.cardStatus.unavailable,
+.cardStatus.not_implemented {
+  background: rgba(107,114,128,0.06);
+  color: var(--text-muted);
+  border: 1px solid rgba(107,114,128,0.12);
 }
 
 .cardValue {
-  font-family: var(--mono);
-  font-size: 12px;
-  color: var(--text);
+  font-size: 13px;
+  color: var(--text-primary);
   word-break: break-all;
   line-height: 1.5;
 }
 
-.cardDetail {
-  font-size: 12px;
-  color: var(--text);
-  margin-top: 4px;
-  font-style: italic;
+.monoValue {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--purple-light);
+  background: var(--bg-surface);
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+  display: block;
+  word-break: break-all;
 }
 
-/* ---- Gemini Explanation Box ---- */
+.cardDetail {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.detailTampered {
+  color: #f87171;
+  font-weight: 600;
+}
+
+.tamperAlert {
+  margin-top: 4px;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--status-failed-bg);
+  border: 1px solid var(--status-failed-border);
+  color: #f87171;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ═══════════════════════════════════════
+   Unified Gemini Card
+   ═══════════════════════════════════════ */
 .geminiCard {
-  margin-top: 16px;
-  padding: 18px 20px;
-  border-radius: 12px;
-  border: 1px solid var(--accent-border);
-  background: var(--accent-bg);
-  animation: fadeIn 0.35s ease both;
+  background: var(--bg-card);
+  border: 1px solid rgba(160, 120, 255, 0.2);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 0 28px rgba(160, 120, 255, 0.05);
+  transition:
+    border-color var(--duration-normal) ease,
+    box-shadow var(--duration-normal) ease,
+    transform var(--duration-normal) var(--ease-out-expo);
+  will-change: transform;
+}
+
+.geminiCard:hover {
+  border-color: rgba(160, 120, 255, 0.35);
+  box-shadow: 0 4px 28px rgba(160, 120, 255, 0.08);
 }
 
 .geminiHeader {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 10px;
-  color: var(--accent);
+  justify-content: space-between;
+  margin-bottom: 16px;
+  gap: 12px;
+}
+
+.geminiHeaderTitle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.geminiIconWrap {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--purple-glow);
+  border: 1px solid rgba(160,120,255,0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--purple-primary);
 }
 
 .geminiTitle {
-  font-size: 13px;
+  font-family: var(--font-sans);
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.6px;
+  font-size: 15px;
+  color: var(--text-h);
 }
+
+.geminiBody { margin-bottom: 16px; }
 
 .geminiExplanationText {
-  font-size: 13.5px;
-  line-height: 1.6;
-  color: var(--text-h);
-  margin: 0;
+  font-size: 14px;
+  color: var(--text-primary);
+  line-height: 1.7;
 }
 
-/* ---- OCR Text Preview ---- */
-.ocrPreview {
-  margin-top: 16px;
-  padding: 18px 20px;
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  background: var(--card-bg);
-  animation: fadeIn 0.35s ease both;
-  animation-delay: 360ms;
-}
-
-.ocrPreviewTitle {
+.geminiLoadingRow {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.6px;
+  gap: 12px;
+}
+
+.geminiSpinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(160,120,255,0.2);
+  border-top-color: var(--purple-primary);
+  border-radius: 50%;
+  animation: gemSpin 700ms linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes gemSpin {
+  to { transform: rotate(360deg); }
+}
+
+.geminiPendingText {
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.geminiErrorText {
+  font-size: 13px;
+  color: #f87171;
+}
+
+.geminiFooterLabel {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  padding-top: 14px;
+  border-top: 1px solid var(--border-subtle);
+  letter-spacing: 0.2px;
+}
+
+/* ═══════════════════════════════════════
+   OCR Section
+   ═══════════════════════════════════════ */
+.ocrPreviewSection {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition: border-color var(--duration-normal) ease;
+}
+
+.ocrPreviewSection:hover {
+  border-color: var(--border-hover);
+}
+
+.ocrToggleBtn {
+  width: 100%;
+  padding: 16px 20px;
+  background: transparent;
+  border: none;
   color: var(--text-h);
-  margin: 0 0 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  transition: background-color var(--duration-fast) ease;
+  outline: none;
+}
+
+.ocrToggleBtn:hover,
+.ocrToggleBtn:focus-visible {
+  background: rgba(255,255,255,0.02);
+}
+
+.ocrToggleTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-secondary);
+}
+
+.ocrCharCount {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  padding: 2px 8px;
+  background: var(--bg-surface);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+}
+
+.ocrChevron {
+  font-size: 10px;
+  color: var(--text-muted);
+  transition: transform var(--duration-normal) var(--ease-out-expo);
+}
+
+.ocrChevronOpen {
+  transform: rotate(180deg);
+}
+
+.ocrContentWrapper {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height var(--duration-slow) var(--ease-out-expo);
+}
+
+.ocrContentOpen {
+  max-height: 320px;
 }
 
 .ocrPreviewText {
-  font-family: var(--mono);
+  font-family: var(--font-mono);
   font-size: 12px;
-  line-height: 1.6;
-  color: var(--text);
-  white-space: pre-wrap;
-  word-break: break-word;
-  margin: 0;
-  padding: 12px;
-  border-radius: 8px;
-  background: var(--code-bg);
-  max-height: 200px;
+  color: var(--text-secondary);
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border-subtle);
+  padding: 16px 20px;
+  max-height: 280px;
   overflow-y: auto;
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-all;
+  line-height: 1.6;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@media (max-width: 640px) {
-  .section {
-    margin: 24px 20px 32px;
-  }
-  .grid {
-    grid-template-columns: 1fr;
-  }
+/* ═══════════════════════════════════════
+   Responsive
+   ═══════════════════════════════════════ */
+@media (max-width: 768px) {
+  .grid { grid-template-columns: 1fr; }
+  .credentialGrid { grid-template-columns: 1fr; }
+  .sectionTitle { font-size: 18px; }
 }

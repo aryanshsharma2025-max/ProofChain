@@ -1,63 +1,71 @@
 .header {
+  position: static;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 32px;
-  border-bottom: 1px solid var(--border);
-  background: var(--bg);
-  position: relative;
+  padding: 28px 0 24px;
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: 0;
 }
 
 .logo {
   display: flex;
   align-items: center;
-  gap: 12px;
-  text-decoration: none;
+  gap: 14px;
 }
 
 .logoIcon {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, rgba(160,120,255,0.15), rgba(34,211,238,0.08));
+  border: 1px solid rgba(160, 120, 255, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
-  font-weight: 700;
-  font-size: 18px;
-  font-family: var(--heading);
-  box-shadow: 0 2px 8px rgba(var(--accent-rgb), 0.35);
+  color: var(--purple-primary);
+  box-shadow: 0 0 16px rgba(160, 120, 255, 0.1), inset 0 0 12px rgba(160,120,255,0.05);
+  transition: box-shadow var(--duration-normal) var(--ease-out-expo),
+              border-color var(--duration-normal) var(--ease-out-expo);
+}
+
+.header:hover .logoIcon {
+  box-shadow: 0 0 24px rgba(160, 120, 255, 0.18), inset 0 0 12px rgba(160,120,255,0.08);
+  border-color: rgba(160, 120, 255, 0.35);
 }
 
 .logoText {
-  font-family: var(--heading);
-  font-weight: 700;
+  font-family: var(--font-sans);
+  font-weight: 800;
   font-size: 20px;
   color: var(--text-h);
-  letter-spacing: -0.4px;
+  letter-spacing: -0.5px;
 }
 
 .badge {
+  font-family: var(--font-mono);
   font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  padding: 4px 10px;
-  border-radius: 100px;
-  background: var(--accent-bg);
-  color: var(--accent);
-  border: 1px solid var(--accent-border);
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  padding: 5px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+  transition: border-color var(--duration-normal) ease, color var(--duration-normal) ease;
+}
+
+.badge:hover {
+  border-color: var(--border-color);
+  color: var(--purple-light);
 }
 
 @media (max-width: 640px) {
-  .header {
-    padding: 16px 20px;
-  }
-  .logoText {
-    font-size: 17px;
-  }
-  .badge {
-    display: none;
-  }
+  .header { padding: 20px 0 16px; }
+  .logoText { font-size: 18px; }
+  .badge { font-size: 10px; padding: 4px 10px; }
+}
+
+@media (max-width: 420px) {
+  .badge { display: none; }
 }

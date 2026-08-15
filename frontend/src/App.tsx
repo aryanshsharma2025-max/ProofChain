@@ -13,6 +13,7 @@ import Hero from './components/Hero/Hero';
 import DropZone from './components/DropZone/DropZone';
 import VerifyButton from './components/VerifyButton/VerifyButton';
 import StatusPanel from './components/StatusPanel/StatusPanel';
+import Pipeline from './components/Pipeline/Pipeline';
 import ResultsPanel from './components/ResultsPanel/ResultsPanel';
 import Footer from './components/Footer/Footer';
 
@@ -174,12 +175,12 @@ export default function App() {
         };
       }
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Unknown OCR error';
-      newResults.ocr = {
-        ...newResults.ocr,
-        status: 'error',
-        detail: message,
-      };
+        const message = err instanceof Error ? err.message : 'Unknown OCR error';
+        newResults.ocr = {
+          ...newResults.ocr,
+          status: 'error',
+          detail: message,
+        };
     }
 
     // --- OCR Consistency Check ---
@@ -298,7 +299,12 @@ export default function App() {
           loading={status === 'processing'}
         />
         <StatusPanel status={status} />
-        {showResults && <ResultsPanel results={results} />}
+        {showResults && (
+          <>
+            <Pipeline results={results} />
+            <ResultsPanel results={results} />
+          </>
+        )}
       </main>
       <Footer />
     </>

@@ -25,7 +25,9 @@ export default function VerifyButton({ onClick, disabled, loading }: VerifyButto
             </svg>
           )}
         </span>
-        {loading ? 'Verifying...' : 'Verify Credential'}
+        <span className={styles.buttonText}>
+          {loading ? 'Running Verification Pipeline...' : 'Run Verification Pipeline'}
+        </span>
       </button>
     </div>
   );

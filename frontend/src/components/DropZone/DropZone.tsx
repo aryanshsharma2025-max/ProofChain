@@ -58,15 +58,14 @@ export default function DropZone({ onFileSelect, selectedFile, onClear, disabled
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) handleFile(file);
-    // Reset so re-selecting the same file works
     e.target.value = '';
   };
 
   return (
-    <div>
+    <div className={styles.wrapper}>
       <div
         id="dropzone"
-        className={`${styles.dropzone} ${dragActive ? styles.dropzoneActive : ''}`}
+        className={`${styles.dropzone} ${dragActive ? styles.dropzoneActive : ''} ${disabled ? styles.dropzoneDisabled : ''}`}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
@@ -80,13 +79,13 @@ export default function DropZone({ onFileSelect, selectedFile, onClear, disabled
       >
         <div className={styles.dropzoneIcon}>
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" />
           </svg>
         </div>
         <p className={styles.dropzoneTitle}>
-          {dragActive ? 'Drop your file here' : 'Drag & drop your credential here'}
+          {dragActive ? 'Drop credential file here' : 'Drag & drop credential document'}
         </p>
-        <p className={styles.dropzoneHint}>or click to browse · PDF, PNG, JPG</p>
+        <p className={styles.dropzoneHint}>Click to browse from device · PDF, PNG, JPG (max 10MB)</p>
         <input
           ref={inputRef}
           type="file"
@@ -106,7 +105,11 @@ export default function DropZone({ onFileSelect, selectedFile, onClear, disabled
           </div>
           <div className={styles.fileInfo}>
             <div className={styles.fileName}>{selectedFile.name}</div>
-            <div className={styles.fileSize}>{formatFileSize(selectedFile.size)}</div>
+            <div className={styles.fileMeta}>
+              <span className={styles.fileSize}>{formatFileSize(selectedFile.size)}</span>
+              <span className={styles.fileDivider}>·</span>
+              <span className={styles.fileType}>{selectedFile.type || 'Document'}</span>
+            </div>
           </div>
           <button
             className={styles.removeBtn}
@@ -115,7 +118,7 @@ export default function DropZone({ onFileSelect, selectedFile, onClear, disabled
             id="remove-file-btn"
             type="button"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" width="16" height="16">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" width="16" height="16">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
             </svg>
           </button>

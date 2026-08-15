@@ -1,4 +1,7 @@
-/* App-level layout — minimal since components own their own styles */
+/* App-level layout */
 main {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 }

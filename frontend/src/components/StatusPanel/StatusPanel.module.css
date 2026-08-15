@@ -1,97 +1,183 @@
 .panel {
-  margin: 32px 32px 0;
-  padding: 24px;
-  border-radius: 16px;
-  border: 1px solid var(--border);
-  background: var(--card-bg);
-  text-align: center;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 28px 28px 24px;
+  margin-bottom: 36px;
+  position: relative;
+  overflow: hidden;
+  transition:
+    border-color var(--duration-slow) var(--ease-out-expo),
+    background-color var(--duration-slow) var(--ease-out-expo),
+    box-shadow var(--duration-slow) var(--ease-out-expo);
+}
+
+/* ── Ambient top glow bar ── */
+.panel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--border-color);
+  transition: background var(--duration-slow) ease;
+}
+
+.headerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
 }
 
 .panelTitle {
-  font-size: 13px;
+  font-family: var(--font-mono);
+  font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.8px;
-  color: var(--text);
-  margin: 0 0 16px;
+  letter-spacing: 1.2px;
+  color: var(--text-muted);
+}
+
+.description {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.6;
 }
 
 .statusBadge {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 24px;
-  border-radius: 100px;
-  font-size: 14px;
-  font-weight: 600;
-  font-family: var(--sans);
-  border: 2px solid transparent;
-  transition: all 0.3s ease;
+  gap: 10px;
+  padding: 7px 16px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  border: 1px solid transparent;
+  transition: all var(--duration-normal) var(--ease-out-expo);
 }
 
-/* Status variants */
-.ready {
-  background: var(--status-ready-bg);
-  color: var(--status-ready);
-  border-color: var(--status-ready-border);
-}
-
-.processing {
-  background: var(--status-processing-bg);
-  color: var(--status-processing);
-  border-color: var(--status-processing-border);
-}
-
-.incomplete {
-  background: var(--status-incomplete-bg);
-  color: var(--status-incomplete);
-  border-color: var(--status-incomplete-border);
-}
-
-.verified {
-  background: var(--status-verified-bg);
-  color: var(--status-verified);
-  border-color: var(--status-verified-border);
-}
-
-.suspicious {
-  background: var(--status-suspicious-bg);
-  color: var(--status-suspicious);
-  border-color: var(--status-suspicious-border);
-}
-
-.failed {
-  background: var(--status-failed-bg);
-  color: var(--status-failed);
-  border-color: var(--status-failed-border);
-}
-
-/* Status dot */
 .statusDot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: currentColor;
+  flex-shrink: 0;
+  transition: all var(--duration-normal) ease;
 }
 
-.processing .statusDot {
+/* ── Ready ── */
+.badge_ready {
+  background: var(--status-pending-bg);
+  border-color: var(--status-pending-border);
+  color: var(--text-secondary);
+}
+.badge_ready .statusDot { background: var(--text-muted); }
+
+/* ── Processing ── */
+.panel.processing::before {
+  background: linear-gradient(90deg, transparent, #3b82f6, transparent);
+  animation: scanLine 2s linear infinite;
+}
+.badge_processing {
+  background: var(--status-processing-bg);
+  border-color: var(--status-processing-border);
+  color: #60a5fa;
+}
+.badge_processing .statusDot {
+  background: #3b82f6;
+  box-shadow: 0 0 10px rgba(59,130,246,0.6);
   animation: pulse 1.5s ease-in-out infinite;
 }
 
+@keyframes scanLine {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* ── Incomplete ── */
+.panel.incomplete {
+  border-color: rgba(160,120,255,0.25);
+}
+.panel.incomplete::before {
+  background: linear-gradient(90deg, transparent, var(--purple-primary), transparent);
+}
+.badge_incomplete {
+  background: var(--status-incomplete-bg);
+  border-color: var(--status-incomplete-border);
+  color: var(--purple-light);
+}
+.badge_incomplete .statusDot {
+  background: var(--purple-primary);
+  box-shadow: 0 0 10px rgba(160,120,255,0.5);
+}
+
+/* ── Verified ── */
+.panel.verified {
+  border-color: var(--status-verified-border);
+  box-shadow: 0 0 32px var(--status-verified-glow);
+}
+.panel.verified::before {
+  background: linear-gradient(90deg, transparent, var(--status-verified), transparent);
+}
+.badge_verified {
+  background: var(--status-verified-bg);
+  border-color: var(--status-verified-border);
+  color: #34d399;
+}
+.badge_verified .statusDot {
+  background: var(--status-verified);
+  box-shadow: 0 0 10px var(--status-verified-glow);
+}
+
+/* ── Suspicious ── */
+.panel.suspicious {
+  border-color: var(--status-suspicious-border);
+  background: linear-gradient(180deg, rgba(245,158,11,0.03) 0%, var(--bg-card) 100%);
+  box-shadow: 0 0 32px var(--status-suspicious-glow);
+}
+.panel.suspicious::before {
+  background: linear-gradient(90deg, transparent, var(--status-suspicious), transparent);
+}
+.badge_suspicious {
+  background: var(--status-suspicious-bg);
+  border-color: var(--status-suspicious-border);
+  color: #fbbf24;
+}
+.badge_suspicious .statusDot {
+  background: var(--status-suspicious);
+  box-shadow: 0 0 10px var(--status-suspicious-glow);
+}
+
+/* ── Failed ── */
+.panel.failed {
+  border-color: var(--status-failed-border);
+  background: linear-gradient(180deg, rgba(239,68,68,0.03) 0%, var(--bg-card) 100%);
+  box-shadow: 0 0 32px var(--status-failed-glow);
+}
+.panel.failed::before {
+  background: linear-gradient(90deg, transparent, var(--status-failed), transparent);
+}
+.badge_failed {
+  background: var(--status-failed-bg);
+  border-color: var(--status-failed-border);
+  color: #f87171;
+}
+.badge_failed .statusDot {
+  background: var(--status-failed);
+  box-shadow: 0 0 10px var(--status-failed-glow);
+}
+
 @keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.4;
-    transform: scale(0.85);
-  }
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.8); }
 }
 
 @media (max-width: 640px) {
-  .panel {
-    margin: 24px 20px 0;
-    padding: 20px;
-  }
+  .panel { padding: 20px; }
+  .headerRow { flex-direction: column; align-items: flex-start; }
 }

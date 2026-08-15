@@ -1,41 +1,104 @@
 .hero {
-  padding: 64px 32px 40px;
+  position: relative;
+  padding: 72px 0 56px;
   text-align: center;
+  overflow: hidden;
+}
+
+/* ── Orb Background ── */
+.orbContainer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.orb {
+  position: absolute;
+  top: -30%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 520px;
+  height: 520px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(124, 77, 255, 0.12) 0%,
+    rgba(160, 120, 255, 0.06) 35%,
+    transparent 70%
+  );
+  filter: blur(40px);
+  animation: orbFloat 12s ease-in-out infinite;
+}
+
+.orbSecondary {
+  position: absolute;
+  top: -10%;
+  left: 60%;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(34, 211, 238, 0.06) 0%,
+    transparent 65%
+  );
+  filter: blur(30px);
+  animation: orbDrift 16s ease-in-out infinite;
+}
+
+@keyframes orbFloat {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(16px); }
+}
+
+@keyframes orbDrift {
+  0%, 100% { transform: translateX(0) translateY(0); }
+  33% { transform: translateX(-20px) translateY(10px); }
+  66% { transform: translateX(12px) translateY(-8px); }
+}
+
+/* ── Content ── */
+.content {
+  position: relative;
+  z-index: 1;
 }
 
 .title {
-  font-family: var(--heading);
-  font-size: 48px;
+  font-family: var(--font-sans);
+  font-size: 52px;
   font-weight: 800;
-  letter-spacing: -1.5px;
-  margin: 0 0 16px;
+  letter-spacing: -1.8px;
+  margin: 0 0 20px;
   color: var(--text-h);
   line-height: 1.1;
 }
 
 .titleAccent {
-  background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+  background: linear-gradient(135deg, var(--purple-primary) 0%, var(--cyan-accent) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .subtitle {
-  font-size: 18px;
-  color: var(--text);
-  max-width: 520px;
+  font-size: 17px;
+  color: var(--text-secondary);
+  max-width: 560px;
   margin: 0 auto;
-  line-height: 1.6;
+  line-height: 1.65;
 }
 
 @media (max-width: 768px) {
-  .hero {
-    padding: 40px 20px 28px;
-  }
-  .title {
-    font-size: 32px;
-  }
-  .subtitle {
-    font-size: 15px;
-  }
+  .hero { padding: 48px 0 36px; }
+  .title { font-size: 34px; letter-spacing: -1px; }
+  .subtitle { font-size: 15px; }
+  .orb { width: 320px; height: 320px; }
+  .orbSecondary { width: 200px; height: 200px; }
+}
+
+@media (max-width: 480px) {
+  .hero { padding: 36px 0 28px; }
+  .title { font-size: 28px; }
+  .subtitle { font-size: 14px; }
 }
