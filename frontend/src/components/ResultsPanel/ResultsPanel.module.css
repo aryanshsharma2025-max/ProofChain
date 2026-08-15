@@ -72,6 +72,79 @@
   word-break: break-all;
 }
 
+/* ---- Document Consistency Card ---- */
+.consistencyCard {
+  margin-bottom: 16px;
+  padding: 20px 24px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  animation: fadeIn 0.35s ease both;
+}
+
+.consistencyHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  color: var(--text-h);
+}
+
+.consistencyTitle {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+.consistencyDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.consistencyRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.consistencyLabel {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text);
+  flex-shrink: 0;
+}
+
+.statusChip {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 100px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.match {
+  background: var(--status-verified-bg);
+  color: var(--status-verified);
+  border: 1px solid var(--status-verified-border);
+}
+
+.mismatch {
+  background: var(--status-failed-bg);
+  color: var(--status-failed);
+  border: 1px solid var(--status-failed-border);
+}
+
+.not_found {
+  background: var(--status-suspicious-bg);
+  color: var(--status-suspicious);
+  border: 1px solid var(--status-suspicious-border);
+}
+
 .card {
   padding: 18px 20px;
   border-radius: 12px;
@@ -155,6 +228,44 @@
   color: var(--text);
   margin-top: 4px;
   font-style: italic;
+}
+
+/* ---- OCR Text Preview ---- */
+.ocrPreview {
+  margin-top: 16px;
+  padding: 18px 20px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  animation: fadeIn 0.35s ease both;
+  animation-delay: 360ms;
+}
+
+.ocrPreviewTitle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-h);
+  margin: 0 0 10px;
+}
+
+.ocrPreviewText {
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--text);
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0;
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--code-bg);
+  max-height: 200px;
+  overflow-y: auto;
 }
 
 @keyframes fadeIn {

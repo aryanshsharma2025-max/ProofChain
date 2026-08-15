@@ -8,8 +8,8 @@ export default function Hero() {
         <span className={styles.titleAccent}>ProofChain</span>
       </h1>
       <p className={styles.subtitle}>
-        Upload any credential document and verify its authenticity using
-        cryptographic hashing, metadata analysis, and digital signature checks.
+        Upload a digital credential and verify its integrity using cryptographic
+        hashing, document analysis, and trusted records.
       </p>
     </section>
   );

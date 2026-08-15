@@ -1,3 +1,5 @@
+import type { ConsistencyReport } from '../utils/consistency';
+
 export type VerificationStatus =
   | 'ready'
   | 'processing'
@@ -35,12 +37,14 @@ export interface VerificationResult {
   blockchain: AnalysisResult;
   gemini: AnalysisResult;
   matchedCredential?: MatchedCredential;
+  ocrText?: string;
+  consistency?: ConsistencyReport;
 }
 
 export function createInitialResults(): VerificationResult {
   return {
     sha256: { label: 'SHA-256 Hash', status: 'pending' },
-    ocr: { label: 'OCR Analysis', status: 'unavailable', detail: 'Not yet implemented' },
+    ocr: { label: 'OCR Analysis', status: 'pending' },
     metadata: { label: 'Metadata Analysis', status: 'pending' },
     digitalSignature: { label: 'Signature Verification', status: 'not_implemented', detail: 'Not implemented' },
     blockchain: { label: 'Blockchain Proof', status: 'unavailable', detail: 'Not yet implemented' },

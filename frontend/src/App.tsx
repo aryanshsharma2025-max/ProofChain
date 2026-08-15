@@ -4,6 +4,8 @@ import { createInitialResults } from './types';
 import { computeSHA256 } from './utils/hash';
 import { extractFileMetadata } from './utils/metadata';
 import { formatFileSize } from './utils/fileHelpers';
+import { runOcr, OCR_PREVIEW_LIMIT } from './utils/ocr';
+import { checkOcrConsistency } from './utils/consistency';
 import { supabase } from './lib/supabase';
 
 import Header from './components/Header/Header';
@@ -140,6 +142,55 @@ export default function App() {
     }
     setResults({ ...newResults });
 
+    // --- OCR Analysis ---
+    newResults.ocr = { ...newResults.ocr, status: 'running', detail: 'Extracting text…' };
+    setResults({ ...newResults });
+
+    try {
+      const ocrResult = await runOcr(selectedFile.file);
+      if (ocrResult.success && ocrResult.text.length > 0) {
+        const preview = ocrResult.text.length > OCR_PREVIEW_LIMIT
+          ? ocrResult.text.slice(0, OCR_PREVIEW_LIMIT) + '…'
+          : ocrResult.text;
+        newResults.ocr = {
+          ...newResults.ocr,
+          status: 'complete',
+          value: preview,
+          detail: `Extracted ${ocrResult.text.length} characters`,
+        };
+        newResults.ocrText = ocrResult.text;
+      } else if (ocrResult.success && ocrResult.text.length === 0) {
+        newResults.ocr = {
+          ...newResults.ocr,
+          status: 'complete',
+          value: '(no text detected)',
+          detail: 'OCR completed but no readable text was found',
+        };
+      } else {
+        newResults.ocr = {
+          ...newResults.ocr,
+          status: 'error',
+          detail: ocrResult.error || 'OCR extraction failed',
+        };
+      }
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Unknown OCR error';
+      newResults.ocr = {
+        ...newResults.ocr,
+        status: 'error',
+        detail: message,
+      };
+    }
+
+    // --- OCR Consistency Check ---
+    if (newResults.matchedCredential && newResults.ocrText) {
+      newResults.consistency = checkOcrConsistency(
+        newResults.ocrText,
+        newResults.matchedCredential
+      );
+    }
+    setResults({ ...newResults });
+
     // --- Digital Signature — NOT IMPLEMENTED ---
     // Signature verification is not yet implemented.
     // Status remains 'not_implemented' from createInitialResults().
@@ -147,21 +198,26 @@ export default function App() {
     // --- Determine final verification status ---
     const sha256Failed = newResults.sha256.status === 'error';
     const metadataFailed = newResults.metadata.status === 'error';
+    const ocrFailed = newResults.ocr.status === 'error';
+    const ocrHasMismatch = newResults.consistency?.hasMismatch === true;
+
     const hasUnavailable = [
-      newResults.ocr,
       newResults.digitalSignature,
       newResults.blockchain,
       newResults.gemini,
     ].some((r) => r.status === 'unavailable' || r.status === 'not_implemented');
 
-    if (sha256Failed && !newResults.matchedCredential) {
+    if (sha256Failed || !newResults.matchedCredential) {
       // Hash mismatch or query error — suspicious
       setStatus('suspicious');
-    } else if (metadataFailed) {
-      // Metadata extraction failed
+    } else if (ocrHasMismatch) {
+      // OCR mismatch while hash matches — suspicious
+      setStatus('suspicious');
+    } else if (metadataFailed || ocrFailed) {
+      // A core analysis layer failed
       setStatus('failed');
-    } else if (hasUnavailable) {
-      // Hash matched but other verification layers are not implemented yet
+    } else if (hasUnavailable || newResults.consistency?.hasNotFound) {
+      // Hash matched, but OCR has missing fields or other verification layers are not implemented yet
       setStatus('incomplete');
     } else {
       // All analyses complete — only reachable when all layers are implemented
