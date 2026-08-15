@@ -1,6 +1,7 @@
 import { createWorker } from 'tesseract.js';
 import * as pdfjsLib from 'pdfjs-dist';
 import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.mjs?url';
+import { MAX_FILE_SIZE_BYTES } from './fileHelpers';
 
 // Configure PDF.js worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
@@ -72,6 +73,14 @@ async function ocrPdf(file: File): Promise<OcrResult> {
  * Returns an OcrResult with the extracted text or an error message.
  */
 export async function runOcr(file: File): Promise<OcrResult> {
+  if (file.size > MAX_FILE_SIZE_BYTES) {
+    return {
+      success: false,
+      text: '',
+      error: 'File size exceeds maximum limit of 15 MB',
+    };
+  }
+
   const type = file.type.toLowerCase();
   const ext = file.name.split('.').pop()?.toLowerCase() ?? '';
 

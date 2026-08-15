@@ -1,9 +1,9 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import type { UploadedFile, VerificationStatus, VerificationResult } from './types';
 import { createInitialResults } from './types';
 import { computeSHA256 } from './utils/hash';
 import { extractFileMetadata } from './utils/metadata';
-import { formatFileSize } from './utils/fileHelpers';
+import { formatFileSize, MAX_FILE_SIZE_BYTES } from './utils/fileHelpers';
 import { runOcr, OCR_PREVIEW_LIMIT } from './utils/ocr';
 import { checkOcrConsistency } from './utils/consistency';
 import { supabase } from './lib/supabase';
@@ -24,8 +24,10 @@ export default function App() {
   const [status, setStatus] = useState<VerificationStatus>('ready');
   const [results, setResults] = useState<VerificationResult>(createInitialResults());
   const [showResults, setShowResults] = useState(false);
+  const activeVerificationId = useRef<number>(0);
 
   const handleFileSelect = useCallback((file: UploadedFile) => {
+    activeVerificationId.current += 1;
     setSelectedFile(file);
     setStatus('ready');
     setResults(createInitialResults());
@@ -33,6 +35,7 @@ export default function App() {
   }, []);
 
   const handleClear = useCallback(() => {
+    activeVerificationId.current += 1;
     setSelectedFile(null);
     setStatus('ready');
     setResults(createInitialResults());
@@ -42,14 +45,33 @@ export default function App() {
   const handleVerify = useCallback(async () => {
     if (!selectedFile) return;
 
+    const currentId = activeVerificationId.current + 1;
+    activeVerificationId.current = currentId;
+
+    const isStale = () => activeVerificationId.current !== currentId;
+
     setStatus('processing');
     setShowResults(true);
 
     // Start fresh results
     const newResults = createInitialResults();
 
+    // Check file size limit (max 15 MB) before hashing / OCR
+    if (selectedFile.file.size > MAX_FILE_SIZE_BYTES) {
+      if (isStale()) return;
+      newResults.sha256 = {
+        ...newResults.sha256,
+        status: 'error',
+        detail: 'File size exceeds maximum limit of 15 MB',
+      };
+      setResults({ ...newResults });
+      setStatus('failed');
+      return;
+    }
+
     // --- SHA-256 Hash ---
     newResults.sha256 = { ...newResults.sha256, status: 'running' };
+    if (isStale()) return;
     setResults({ ...newResults });
 
     let hashComputed = false;
@@ -57,6 +79,7 @@ export default function App() {
 
     try {
       computedHash = await computeSHA256(selectedFile.file);
+      if (isStale()) return;
       hashComputed = true;
       newResults.sha256 = {
         ...newResults.sha256,
@@ -65,22 +88,27 @@ export default function App() {
         detail: 'Hash computed — querying trusted records…',
       };
     } catch {
+      if (isStale()) return;
       newResults.sha256 = {
         ...newResults.sha256,
         status: 'error',
         detail: 'Failed to compute hash',
       };
     }
+    if (isStale()) return;
     setResults({ ...newResults });
 
     // --- Supabase Hash Lookup ---
     if (hashComputed) {
+      const normalizedComputed = computedHash.trim().toLowerCase();
       try {
         const { data, error } = await supabase
           .from('credentials')
           .select('credential_id, holder_name, issuer_name, file_hash')
-          .eq('file_hash', computedHash)
+          .ilike('file_hash', normalizedComputed)
           .limit(1);
+
+        if (isStale()) return;
 
         if (error) {
           newResults.sha256 = {
@@ -89,21 +117,29 @@ export default function App() {
             detail: `Supabase query failed: ${error.message}`,
           };
         } else if (data && data.length > 0) {
-          // Hash match found
           const matched = data[0];
-          newResults.sha256 = {
-            ...newResults.sha256,
-            status: 'complete',
-            value: computedHash,
-            detail: 'Trusted Hash Found — credential verified against database',
-          };
-          newResults.matchedCredential = {
-            credential_id: matched.credential_id,
-            holder_name: matched.holder_name,
-            issuer_name: matched.issuer_name,
-          };
+          const normalizedDbHash = (matched.file_hash ?? '').trim().toLowerCase();
+          if (normalizedDbHash === normalizedComputed) {
+            newResults.sha256 = {
+              ...newResults.sha256,
+              status: 'complete',
+              value: computedHash,
+              detail: 'Trusted Hash Found — credential verified against database',
+            };
+            newResults.matchedCredential = {
+              credential_id: matched.credential_id,
+              holder_name: matched.holder_name,
+              issuer_name: matched.issuer_name,
+            };
+          } else {
+            newResults.sha256 = {
+              ...newResults.sha256,
+              status: 'error',
+              value: computedHash,
+              detail: 'Hash Mismatch — no trusted record found',
+            };
+          }
         } else {
-          // No match
           newResults.sha256 = {
             ...newResults.sha256,
             status: 'error',
@@ -112,6 +148,7 @@ export default function App() {
           };
         }
       } catch (err: unknown) {
+        if (isStale()) return;
         const message = err instanceof Error ? err.message : 'Unknown error';
         newResults.sha256 = {
           ...newResults.sha256,
@@ -119,15 +156,18 @@ export default function App() {
           detail: `Failed to query credentials: ${message}`,
         };
       }
+      if (isStale()) return;
       setResults({ ...newResults });
     }
 
     // --- Metadata Analysis ---
     newResults.metadata = { ...newResults.metadata, status: 'running' };
+    if (isStale()) return;
     setResults({ ...newResults });
 
     try {
       const meta = extractFileMetadata(selectedFile.file);
+      if (isStale()) return;
       newResults.metadata = {
         ...newResults.metadata,
         status: 'complete',
@@ -135,20 +175,24 @@ export default function App() {
         detail: `Last modified: ${meta.lastModified}`,
       };
     } catch {
+      if (isStale()) return;
       newResults.metadata = {
         ...newResults.metadata,
         status: 'error',
         detail: 'Failed to extract metadata',
       };
     }
+    if (isStale()) return;
     setResults({ ...newResults });
 
     // --- OCR Analysis ---
     newResults.ocr = { ...newResults.ocr, status: 'running', detail: 'Extracting text…' };
+    if (isStale()) return;
     setResults({ ...newResults });
 
     try {
       const ocrResult = await runOcr(selectedFile.file);
+      if (isStale()) return;
       if (ocrResult.success && ocrResult.text.length > 0) {
         const preview = ocrResult.text.length > OCR_PREVIEW_LIMIT
           ? ocrResult.text.slice(0, OCR_PREVIEW_LIMIT) + '…'
@@ -175,12 +219,13 @@ export default function App() {
         };
       }
     } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : 'Unknown OCR error';
-        newResults.ocr = {
-          ...newResults.ocr,
-          status: 'error',
-          detail: message,
-        };
+      if (isStale()) return;
+      const message = err instanceof Error ? err.message : 'Unknown OCR error';
+      newResults.ocr = {
+        ...newResults.ocr,
+        status: 'error',
+        detail: message,
+      };
     }
 
     // --- OCR Consistency Check ---
@@ -190,6 +235,7 @@ export default function App() {
         newResults.matchedCredential
       );
     }
+    if (isStale()) return;
     setResults({ ...newResults });
 
     // --- Digital Signature — NOT IMPLEMENTED ---
@@ -230,6 +276,7 @@ export default function App() {
       status: 'running',
       detail: 'Analyzing evidence…',
     };
+    if (isStale()) return;
     setResults({ ...newResults });
 
     const hashStatus = newResults.sha256.status === 'complete' ? 'match' : (newResults.sha256.status === 'error' ? 'mismatch' : newResults.sha256.status);
@@ -250,6 +297,8 @@ export default function App() {
           ocrText: boundedOcrText,
         },
       });
+
+      if (isStale()) return;
 
       if (error) {
         newResults.gemini = {
@@ -272,6 +321,7 @@ export default function App() {
         };
       }
     } catch (err: unknown) {
+      if (isStale()) return;
       const message = err instanceof Error ? err.message : 'Unknown Gemini error';
       newResults.gemini = {
         label: 'Gemini Analysis',
@@ -279,6 +329,8 @@ export default function App() {
         detail: message,
       };
     }
+
+    if (isStale()) return;
     setResults({ ...newResults });
   }, [selectedFile]);
 

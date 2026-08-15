@@ -46,7 +46,7 @@ function checkField(
   const normalizedExpected = normalize(expected);
   const normalizedOcr = normalize(ocrText);
 
-  // 1. Check for exact normalized match
+  // 1. Check for exact normalized match in OCR text
   if (normalizedOcr.includes(normalizedExpected)) {
     return {
       field,
@@ -56,20 +56,42 @@ function checkField(
     };
   }
 
-  // 2. If mismatch regex provided, check if a different value is present
+  // 2. If regex provided, extract captured values to check for match or mismatch
   if (mismatchRegex) {
-    const matches = ocrText.match(mismatchRegex);
-    if (matches && matches.length > 0) {
-      for (const match of matches) {
-        if (normalize(match) !== normalizedExpected) {
-          return {
-            field,
-            status: 'mismatch',
-            expected,
-            found: match.trim(),
-          };
-        }
+    const globalRegex = new RegExp(
+      mismatchRegex.source,
+      mismatchRegex.flags.includes('g') ? mismatchRegex.flags : mismatchRegex.flags + 'g'
+    );
+    const matches = Array.from(ocrText.matchAll(globalRegex));
+    let candidateMismatch: string | null = null;
+
+    for (const match of matches) {
+      // Use capture group 1 if present and non-empty, otherwise full match
+      const rawExtracted = (match[1] !== undefined && match[1].trim().length > 0)
+        ? match[1]
+        : match[0];
+      const extracted = rawExtracted.trim();
+      if (!extracted) continue;
+
+      if (normalize(extracted) === normalizedExpected) {
+        return {
+          field,
+          status: 'match',
+          expected,
+          found: extracted,
+        };
+      } else if (!candidateMismatch) {
+        candidateMismatch = extracted;
       }
+    }
+
+    if (candidateMismatch) {
+      return {
+        field,
+        status: 'mismatch',
+        expected,
+        found: candidateMismatch,
+      };
     }
   }
 

@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from 'react';
 import type { UploadedFile } from '../../types';
-import { isAcceptedFile, formatFileSize, ACCEPT_STRING } from '../../utils/fileHelpers';
+import { getFileValidationError, formatFileSize, ACCEPT_STRING } from '../../utils/fileHelpers';
 import styles from './DropZone.module.css';
 
 interface DropZoneProps {
@@ -16,8 +16,9 @@ export default function DropZone({ onFileSelect, selectedFile, onClear, disabled
 
   const handleFile = useCallback(
     (file: File) => {
-      if (!isAcceptedFile(file)) {
-        alert('Unsupported file type. Please upload a PDF, PNG, or JPG file.');
+      const errorMsg = getFileValidationError(file);
+      if (errorMsg) {
+        alert(errorMsg);
         return;
       }
       onFileSelect({
