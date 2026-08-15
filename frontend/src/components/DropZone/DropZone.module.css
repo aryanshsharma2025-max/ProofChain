@@ -1,0 +1,168 @@
+.dropzone {
+  margin: 0 32px;
+  padding: 48px 32px;
+  border: 2px dashed var(--border);
+  border-radius: 16px;
+  background: var(--card-bg);
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.dropzone::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  background: linear-gradient(
+    135deg,
+    rgba(var(--accent-rgb), 0.03),
+    rgba(var(--accent-secondary-rgb), 0.03)
+  );
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.dropzone:hover,
+.dropzoneActive {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-bg);
+}
+
+.dropzone:hover::before,
+.dropzoneActive::before {
+  opacity: 1;
+}
+
+.dropzoneIcon {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 16px;
+  border-radius: 14px;
+  background: var(--accent-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.25s ease;
+}
+
+.dropzone:hover .dropzoneIcon {
+  transform: translateY(-2px);
+}
+
+.dropzoneIcon svg {
+  width: 24px;
+  height: 24px;
+  color: var(--accent);
+}
+
+.dropzoneTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-h);
+  margin-bottom: 6px;
+}
+
+.dropzoneHint {
+  font-size: 13px;
+  color: var(--text);
+}
+
+.hiddenInput {
+  display: none;
+}
+
+/* File preview */
+.filePreview {
+  margin: 16px 32px 0;
+  padding: 16px 20px;
+  border-radius: 12px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  animation: slideUp 0.3s ease;
+}
+
+.fileIcon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: var(--accent-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.fileIcon svg {
+  width: 20px;
+  height: 20px;
+  color: var(--accent);
+}
+
+.fileInfo {
+  flex: 1;
+  text-align: left;
+  min-width: 0;
+}
+
+.fileName {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-h);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fileSize {
+  font-size: 12px;
+  color: var(--text);
+  margin-top: 2px;
+}
+
+.removeBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text);
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.removeBtn:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 640px) {
+  .dropzone {
+    margin: 0 20px;
+    padding: 36px 20px;
+  }
+  .filePreview {
+    margin: 12px 20px 0;
+  }
+}

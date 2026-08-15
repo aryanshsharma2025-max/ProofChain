@@ -1,0 +1,4 @@
+/* App-level layout — minimal since components own their own styles */
+main {
+  flex: 1;
+}
