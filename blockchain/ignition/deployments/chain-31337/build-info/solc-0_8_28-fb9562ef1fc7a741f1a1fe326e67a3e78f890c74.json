@@ -1,0 +1,49 @@
+{
+  "_format": "hh3-sol-build-info-1",
+  "id": "solc-0_8_28-fb9562ef1fc7a741f1a1fe326e67a3e78f890c74",
+  "solcVersion": "0.8.28",
+  "solcLongVersion": "0.8.28+commit.7893614a",
+  "compilerType": "solc",
+  "toolVersions": {
+    "hardhat": "3.13.0"
+  },
+  "userSourceNameMap": {
+    "contracts/ProofAnchor.sol": "project/contracts/ProofAnchor.sol"
+  },
+  "input": {
+    "language": "Solidity",
+    "settings": {
+      "evmVersion": "cancun",
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "outputSelection": {
+        "*": {
+          "": [
+            "ast"
+          ],
+          "*": [
+            "abi",
+            "evm.bytecode.linkReferences",
+            "evm.bytecode.object",
+            "evm.bytecode.opcodes",
+            "evm.bytecode.sourceMap",
+            "evm.deployedBytecode.immutableReferences",
+            "evm.deployedBytecode.linkReferences",
+            "evm.deployedBytecode.object",
+            "evm.deployedBytecode.opcodes",
+            "evm.deployedBytecode.sourceMap",
+            "evm.methodIdentifiers"
+          ]
+        }
+      },
+      "remappings": []
+    },
+    "sources": {
+      "project/contracts/ProofAnchor.sol": {
+        "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.28;\n\ncontract ProofAnchor {\n    struct Anchor {\n        bytes32 documentHash;\n        uint256 timestamp;\n        address anchoredBy;\n    }\n\n    mapping(string => Anchor) private anchors;\n\n    event CredentialAnchored(\n        string indexed credentialId,\n        bytes32 indexed documentHash,\n        uint256 timestamp,\n        address indexed anchoredBy\n    );\n\n    function anchorCredential(\n        string calldata credentialId,\n        bytes32 documentHash\n    ) external {\n        require(bytes(credentialId).length > 0, \"Credential ID required\");\n        require(documentHash != bytes32(0), \"Hash required\");\n        require(\n            anchors[credentialId].timestamp == 0,\n            \"Credential already anchored\"\n        );\n\n        anchors[credentialId] = Anchor({\n            documentHash: documentHash,\n            timestamp: block.timestamp,\n            anchoredBy: msg.sender\n        });\n\n        emit CredentialAnchored(\n            credentialId,\n            documentHash,\n            block.timestamp,\n            msg.sender\n        );\n    }\n\n    function getAnchor(\n        string calldata credentialId\n    )\n        external\n        view\n        returns (\n            bytes32 documentHash,\n            uint256 timestamp,\n            address anchoredBy\n        )\n    {\n        Anchor memory anchor = anchors[credentialId];\n\n        require(anchor.timestamp != 0, \"Credential not anchored\");\n\n        return (\n            anchor.documentHash,\n            anchor.timestamp,\n            anchor.anchoredBy\n        );\n    }\n}"
+      }
+    }
+  }
+}

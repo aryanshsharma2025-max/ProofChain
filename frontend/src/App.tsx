@@ -195,7 +195,7 @@ export default function App() {
     // Signature verification is not yet implemented.
     // Status remains 'not_implemented' from createInitialResults().
 
-    // --- Determine final verification status ---
+    // --- Determine final verification status (Deterministic Rules Only) ---
     const sha256Failed = newResults.sha256.status === 'error';
     const metadataFailed = newResults.metadata.status === 'error';
     const ocrFailed = newResults.ocr.status === 'error';
@@ -204,7 +204,6 @@ export default function App() {
     const hasUnavailable = [
       newResults.digitalSignature,
       newResults.blockchain,
-      newResults.gemini,
     ].some((r) => r.status === 'unavailable' || r.status === 'not_implemented');
 
     if (sha256Failed || !newResults.matchedCredential) {
@@ -223,6 +222,63 @@ export default function App() {
       // All analyses complete — only reachable when all layers are implemented
       setStatus('verified');
     }
+
+    // --- Gemini AI Explanation Layer (Non-blocking / Explanation Only) ---
+    newResults.gemini = {
+      label: 'Gemini Analysis',
+      status: 'running',
+      detail: 'Analyzing evidence…',
+    };
+    setResults({ ...newResults });
+
+    const hashStatus = newResults.sha256.status === 'complete' ? 'match' : (newResults.sha256.status === 'error' ? 'mismatch' : newResults.sha256.status);
+    const credentialIdStatus = newResults.consistency?.credential_id.status || 'not_found';
+    const holderStatus = newResults.consistency?.holder_name.status || 'not_found';
+    const issuerStatus = newResults.consistency?.issuer_name.status || 'not_found';
+    const metadataStatus = newResults.metadata.status;
+    const boundedOcrText = (newResults.ocrText || '').slice(0, 2000);
+
+    try {
+      const { data, error } = await supabase.functions.invoke<{ explanation?: string }>('gemini-analysis', {
+        body: {
+          hashStatus,
+          credentialIdStatus,
+          holderStatus,
+          issuerStatus,
+          metadataStatus,
+          ocrText: boundedOcrText,
+        },
+      });
+
+      if (error) {
+        newResults.gemini = {
+          label: 'Gemini Analysis',
+          status: 'error',
+          detail: `Analysis failed: ${error.message}`,
+        };
+      } else if (data && data.explanation) {
+        newResults.gemini = {
+          label: 'Gemini Analysis',
+          status: 'complete',
+          value: 'AI Explanation Generated',
+          detail: data.explanation,
+        };
+      } else {
+        newResults.gemini = {
+          label: 'Gemini Analysis',
+          status: 'error',
+          detail: 'No explanation returned',
+        };
+      }
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Unknown Gemini error';
+      newResults.gemini = {
+        label: 'Gemini Analysis',
+        status: 'error',
+        detail: message,
+      };
+    }
+    setResults({ ...newResults });
   }, [selectedFile]);
 
   return (

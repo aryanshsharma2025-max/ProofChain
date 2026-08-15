@@ -48,6 +48,6 @@ export function createInitialResults(): VerificationResult {
     metadata: { label: 'Metadata Analysis', status: 'pending' },
     digitalSignature: { label: 'Signature Verification', status: 'not_implemented', detail: 'Not implemented' },
     blockchain: { label: 'Blockchain Proof', status: 'unavailable', detail: 'Not yet implemented' },
-    gemini: { label: 'Gemini Analysis', status: 'unavailable', detail: 'Not yet implemented' },
+    gemini: { label: 'Gemini Analysis', status: 'pending' },
   };
 }

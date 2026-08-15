@@ -6,8 +6,8 @@ interface ResultsPanelProps {
 }
 
 export default function ResultsPanel({ results }: ResultsPanelProps) {
-  const { matchedCredential, ocrText, consistency, ...analysisResults } = results;
-  const entries = Object.values(analysisResults);
+  const { matchedCredential, ocrText, consistency, gemini, ...analysisResults } = results;
+  const entries = [...Object.values(analysisResults), gemini];
 
   return (
     <section className={styles.section} id="results-panel">
@@ -87,6 +87,18 @@ export default function ResultsPanel({ results }: ResultsPanelProps) {
           </div>
         ))}
       </div>
+
+      {gemini.status === 'complete' && gemini.detail && (
+        <div className={styles.geminiCard} id="gemini-explanation">
+          <div className={styles.geminiHeader}>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" width="18" height="18">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456Z" />
+            </svg>
+            <span className={styles.geminiTitle}>AI Explanation (Gemini)</span>
+          </div>
+          <p className={styles.geminiExplanationText}>{gemini.detail}</p>
+        </div>
+      )}
 
       {ocrText && (
         <div className={styles.ocrPreview} id="ocr-preview">
