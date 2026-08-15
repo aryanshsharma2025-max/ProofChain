@@ -4,11 +4,8 @@
   justify-content: space-between;
   padding: 20px 32px;
   border-bottom: 1px solid var(--border);
-  backdrop-filter: blur(12px);
-  position: sticky;
-  top: 0;
-  z-index: 100;
   background: var(--bg);
+  position: relative;
 }
 
 .logo {
