@@ -46,3 +46,12 @@ Thumbs.db
 .idea/
 *.swp
 *.swo
+
+# AI Agent & Assistant local skill directories
+.agents/
+**/.agents/
+.claude/
+**/.claude/
+
+# Local Hardhat ignition deployment artifacts (chain-31337 is local test node)
+blockchain/ignition/deployments/chain-31337/
