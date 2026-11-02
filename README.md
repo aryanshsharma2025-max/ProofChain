@@ -1,191 +1,187 @@
 # ProofChain
 
-[![Smart Contract Tests](https://img.shields.io/badge/Smart%20Contract%20Tests-8%20Passing-10B981?style=for-the-badge&logo=solidity)](https://github.com/aryanshsharma2025-max/ProofChain)
-[![Frontend Tests](https://img.shields.io/badge/Frontend%20Tests-Passing-06B6D4?style=for-the-badge&logo=typescript)](https://github.com/aryanshsharma2025-max/ProofChain)
+[![Smart Contract Tests](https://img.shields.io/badge/Hardhat%20Tests-8%20Passing-10B981?style=for-the-badge&logo=solidity)](https://github.com/aryanshsharma2025-max/ProofChain)
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-Vercel-black?style=for-the-badge&logo=vercel)](https://proof-chain-kappa.vercel.app)
+[![Solidity](https://img.shields.io/badge/Solidity-^0.8.28-363636?style=for-the-badge&logo=solidity)](https://github.com/aryanshsharma2025-max/ProofChain)
 
-> **Decentralized Document Integrity & Credential Verification System**  
-> Combines client-side SHA-256 cryptographic hashing, optical character recognition (OCR), cross-layer consistency validation, and Solidity smart contract anchoring.
+A document-integrity and credential-consistency verification prototype combining in-browser cryptographic hashing, OCR text extraction, and smart-contract hash anchoring.
 
----
-
-## 📌 Problem Statement
-
-Academic credentials, certificates, and official documents are increasingly vulnerable to unauthorized digital alterations. Traditional visual inspection cannot reliably detect modified grades, altered recipient names, or spoofed issuer details. 
-
-ProofChain addresses this vulnerability by implementing a **defense-in-depth verification pipeline** that evaluates document authenticity across cryptographic, content, and registry layers.
+The project explores a multi-layer verification workflow to test whether an uploaded certificate matches recorded issuance metadata and has not undergone client-side modification.
 
 ---
 
-## 🏗️ System Architecture
+## 📌 Problem Statement & Architecture
+
+Digital credentials (transcripts, degrees, certificates) distributed as PDFs are easily modified using desktop editing software (e.g. changing candidate names, roll numbers, or course grades).
+
+ProofChain evaluates document integrity across three distinct layers:
+1. **Cryptographic Hashing:** Computes a SHA-256 digest in the user's browser using the native Web Crypto API. The document content stays private on the client machine during hashing.
+2. **Registry Lookup & Content Consistency:** Queries a Supabase credential registry by hash. If found, extracted text from client-side OCR (Tesseract.js / PDF.js) is compared against expected metadata (holder name, issuer name, credential ID).
+3. **Smart Contract Anchoring:** A Solidity smart contract (`ProofAnchor.sol`) records hashes, timestamps, and issuer wallet addresses immutably on an EVM ledger.
 
 ```
-User Uploads Document (PDF / Image)
+User Uploads Certificate (PDF / Image)
             │
             ▼
- ┌────────────────────────────────────────────────────────┐
- │ 1. Client-Side Cryptographic Hashing                   │
- │    • Computes SHA-256 via browser Web Crypto API       │
- │    • Enforces 15 MB file-size ceiling                  │
- └────────────────────────────────────────────────────────┘
+  ┌────────────────────────────────────────────────────────┐
+  │ 1. Client-Side Cryptographic Hashing                   │
+  │    • Computes SHA-256 via browser Web Crypto API       │
+  │    • Document content stays private on client machine  │
+  └────────────────────────────────────────────────────────┘
             │
             ▼
- ┌────────────────────────────────────────────────────────┐
- │ 2. Trusted Registry Lookup                             │
- │    • Queries Supabase 'credentials' table by hash      │
- │    • Case-insensitive hash normalization               │
- └────────────────────────────────────────────────────────┘
-            │
-            ├──► If Hash Matches ──► Retrieve Expected Metadata
-            │                        (Holder Name, Issuer Name, Credential ID)
+  ┌────────────────────────────────────────────────────────┐
+  │ 2. Registry Lookup (Supabase)                          │
+  │    • Queries credential registry by document SHA-256   │
+  │    • If found: retrieves expected metadata (Name, ID)  │
+  │    • If not found: document is untrusted / unregistered│
+  └────────────────────────────────────────────────────────┘
             │
             ▼
- ┌────────────────────────────────────────────────────────┐
- │ 3. Optical Character Recognition (OCR) Engine          │
- │    • Extracts raw text using Tesseract.js / PDF.js     │
- │    • Bounds preview to prevent UI memory degradation   │
- └────────────────────────────────────────────────────────┘
+  ┌────────────────────────────────────────────────────────┐
+  │ 3. Client-Side OCR Extraction (Tesseract.js / PDF.js)  │
+  │    • Reads text layers or rasterized visual content    │
+  │    • Extracts visible text on the certificate          │
+  └────────────────────────────────────────────────────────┘
             │
             ▼
- ┌────────────────────────────────────────────────────────┐
- │ 4. Cross-Layer Consistency Engine                      │
- │    • Validates OCR text against registry metadata      │
- │    • Classifies fields: MATCH | MISMATCH | NOT_FOUND   │
- └────────────────────────────────────────────────────────┘
+  ┌────────────────────────────────────────────────────────┐
+  │ 4. Consistency Engine (src/utils/consistency.ts)       │
+  │    • Compares OCR text against expected metadata       │
+  │    • Flags status: MATCH | MISMATCH | NOT_FOUND        │
+  └────────────────────────────────────────────────────────┘
             │
             ▼
- ┌────────────────────────────────────────────────────────┐
- │ 5. Smart Contract Anchoring Layer (Solidity)           │
- │    • ProofAnchor.sol records immutable (hash, time)    │
- │    • Guarantees duplicate-proof on-chain integrity     │
- └────────────────────────────────────────────────────────┘
+  ┌────────────────────────────────────────────────────────┐
+  │ 5. Smart Contract Anchoring Layer (Solidity)           │
+  │    • ProofAnchor.sol records immutable (hash, time)    │
+  │    • Prevents duplicate credential registrations       │
+  └────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## ⚡ Smart Contract Specification (`ProofAnchor.sol`)
+## 🚦 Implementation Status
 
-The `ProofAnchor` contract is implemented in Solidity `^0.8.28` and deployed to the EVM execution environment with the following specification:
-
-### Data Structures
-```solidity
-struct Anchor {
-    bytes32 documentHash;
-    uint256 timestamp;
-    address anchoredBy;
-}
-```
-
-### Core Functions
-1. **`anchorCredential(string calldata credentialId, bytes32 documentHash) external`**
-   - Requires non-empty `credentialId`.
-   - Requires non-zero `documentHash`.
-   - Reverts if `credentialId` has already been anchored.
-   - Emits `CredentialAnchored(credentialId, documentHash, block.timestamp, msg.sender)`.
-2. **`getAnchor(string calldata credentialId) external view returns (bytes32, uint256, address)`**
-   - Returns the stored document hash, Unix timestamp, and anchoring wallet address.
-   - Reverts if the `credentialId` is not found.
+| Feature / Component | Status | Implementation Details |
+|---|:---:|---|
+| **Client-Side SHA-256 Hashing** | **Implemented** | Computed in browser using native Web Crypto API (`crypto.subtle`) |
+| **Credential Registry Lookup** | **Implemented** | Supabase query by document hash |
+| **OCR Text Extraction** | **Implemented** | Heuristic client-side OCR via Tesseract.js and PDF.js |
+| **Field Consistency Checking** | **Implemented** | Checks extracted name, issuer, and ID against registry record |
+| **Smart Contract (`ProofAnchor.sol`)** | **Implemented** | Solidity `^0.8.28` contract with duplicate prevention |
+| **Hardhat Test Suite** | **Implemented** | 8 automated tests passing on local Hardhat EVM node |
+| **Frontend Consistency Unit Tests**| **Implemented** | Verified via Node test runner (`node --experimental-strip-types`) |
+| **Live Web App Deployment** | **Verified Live** | Hosted on Vercel at [proof-chain-kappa.vercel.app](https://proof-chain-kappa.vercel.app) |
+| **Public Testnet Contract Deploy** | **Local / Configurable**| Hardhat deployable to Sepolia testnet via environment RPC |
+| **Institutional PKI Authentication**| **Not Implemented** | Does not independently authenticate issuer real-world identity |
 
 ---
 
-## 🧪 Automated Test Suites
+## 🛠️ Technology Stack
 
-ProofChain enforces test verification across both the blockchain smart contract and frontend utility modules.
-
-### 1. Smart Contract Tests (`blockchain/test/ProofAnchor.test.ts`)
-Run via Hardhat and Viem on an isolated local EVM node:
-```bash
-cd blockchain
-npm test
-```
-**Test Coverage (8 Automated Test Cases):**
-- ✔ 1. Should deploy ProofAnchor contract successfully
-- ✔ 2. Should anchor a new credential and retrieve its data correctly
-- ✔ 3. Should reject anchoring with an empty credential ID
-- ✔ 4. Should reject anchoring with a zero document hash
-- ✔ 5. Should reject duplicate anchoring for the same credential ID
-- ✔ 6. Should revert when querying an unanchored credential ID
-- ✔ 7. Should emit `CredentialAnchored` event with indexed parameters
-- ✔ 8. Should store and isolate multiple distinct credentials anchored by different accounts
-
-### 2. Frontend Consistency Tests (`frontend/src/utils/consistency.test.ts`)
-Run via Node.js:
-```bash
-cd frontend
-npm test
-```
-**Test Coverage:**
-- ✔ Exact text and field matching (`MATCH`)
-- ✔ Altered or fraudulent field detection (`MISMATCH`)
-- ✔ Absent credential field handling (`NOT_FOUND`)
+- **Frontend:** React, TypeScript, Vite, TailwindCSS
+- **Smart Contract & Tooling:** Solidity `^0.8.28`, Hardhat, Viem
+- **Cryptography & Parsing:** Web Crypto API (SHA-256), Tesseract.js, PDF.js (`pdfjs-dist`)
+- **Backend Registry:** Supabase (PostgreSQL)
+- **Deployment:** Vercel
 
 ---
 
-## 🛠️ Tech Stack & Dependencies
-
-| Layer | Technology | Purpose |
-|---|---|---|
-| **Smart Contracts** | Solidity `^0.8.28`, Hardhat, Viem | On-chain document fingerprint registry and duplicate prevention |
-| **Frontend UI** | TypeScript, React 19, Vite | Responsive single-page application and drop zone interface |
-| **Cryptography** | Web Crypto API (`crypto.subtle`) | In-browser SHA-256 hash generation |
-| **OCR Engine** | Tesseract.js, PDF.js | Browser-based text extraction from certificates |
-| **Database** | Supabase (PostgreSQL) | Off-chain credential registry and metadata lookup |
-| **Hosting** | Vercel | Production web application deployment |
-
----
-
-## 🚀 Local Setup & Installation
+## 💻 Installation & Setup
 
 ### Prerequisites
-- Node.js `>= 20.0.0`
-- npm `>= 10.0.0`
+- Node.js 18 or higher
+- npm
 
-### 1. Clone Repository
+### 1. Clone the repository
 ```bash
 git clone https://github.com/aryanshsharma2025-max/ProofChain.git
 cd ProofChain
 ```
 
-### 2. Blockchain Setup & Test Execution
+### 2. Install Dependencies
 ```bash
+# Install blockchain dependencies
 cd blockchain
 npm install
-npm test
-```
 
-### 3. Frontend Setup & Run
-```bash
+# Install frontend dependencies
 cd ../frontend
 npm install
-npm test
+```
+
+### 3. Environment Configuration
+Copy `.env.example` to `frontend/.env.local` and populate required keys:
+```bash
+cp .env.example frontend/.env.local
+```
+
+---
+
+## 🚀 Execution Instructions
+
+### Running the Frontend Locally
+```bash
+cd frontend
 npm run dev
 ```
+Navigate to `http://localhost:5173`.
 
-Create a `frontend/.env.local` file with your Supabase credentials:
-```env
-VITE_SUPABASE_URL=your_supabase_project_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+### Compiling Smart Contracts
+```bash
+cd blockchain
+npx hardhat compile
 ```
 
 ---
 
-## 📊 Implementation Status & Roadmap
+## 🧪 Automated Testing
 
-### ✅ Implemented
-- [x] Client-side SHA-256 calculation (Web Crypto API)
-- [x] Supabase credential record querying with hash normalization
-- [x] Browser-side OCR text extraction (Tesseract.js & PDF.js)
-- [x] Deterministic field consistency verification
-- [x] `ProofAnchor.sol` smart contract implementation
-- [x] 8 passing Hardhat/Viem unit tests for smart contract
-- [x] Responsive dark-mode dashboard UI
+### 1. Smart Contract Test Suite (`blockchain/test/ProofAnchor.test.ts`)
+Run the contract test suite on an isolated local EVM node:
 
-### 🔄 Planned / Next Phase
-- [ ] Direct Web3 wallet connection in browser (MetaMask / Wagmi) for live on-chain anchoring
-- [ ] Public Sepolia testnet contract deployment and Etherscan verification
-- [ ] Ed25519 issuer digital signature verification
+```bash
+cd blockchain
+npm test
+```
+
+**Verified Test Coverage (8 Passing Tests):**
+1. Contract deployment verification
+2. Credential anchoring and retrieval
+3. Rejection of empty credential IDs
+4. Rejection of zero-value document hashes
+5. Reversion on duplicate registrations for the same credential ID
+6. Reversion when querying unanchored credential IDs
+7. Event emission (`CredentialAnchored`) with valid arguments
+8. Multi-account credential isolation
+
+### 2. Frontend Consistency Tests
+```bash
+cd frontend
+npm test
+```
+Executes consistency matching tests verifying string matching, whitespace normalization, and mismatch flagging across registry metadata and OCR output.
 
 ---
 
-## 📄 License
-MIT License.
+## 🌐 Live Web Deployment
+
+- **Production URL:** [proof-chain-kappa.vercel.app](https://proof-chain-kappa.vercel.app) (Verified HTTP 200 OK)
+
+---
+
+## ⚠️ Known Limitations & Boundaries
+
+1. **Authentication Boundary:** A matching cryptographic hash proves that a file matches a registered byte sequence. It **does not independently prove that the document was issued by a legitimate accredited university** unless combined with institutional public-key infrastructure (PKI).
+2. **OCR Heuristic Sensitivity:** Client-side OCR is sensitive to certificate typography, decorative borders, and scan quality. Character substitution noise (e.g. `0` vs `O`) can cause false mismatches.
+3. **Blockchain Scope:** The smart contract provides an immutable timestamped ledger of hashes; it relies on external authority to designate which wallet addresses belong to valid issuing bodies.
+
+---
+
+## 🎯 Learning Outcomes
+
+- Implementing client-side cryptographic hashing with the browser Web Crypto API.
+- Writing, testing, and verifying Solidity smart contracts with Hardhat and Viem.
+- Designing multi-tier verification pipelines combining relational databases and blockchain registries.
+- Managing asynchronous OCR parsing and file handling in React.
